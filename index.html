@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>成人百科 · 词条卡片</title>
+  <meta name="description" content="成人百科|按分类浏览品牌与平台：动漫、短剧、漫画、小说、写真、AI、网站。" />
+  <meta name="theme-color" content="#0c0e14" />
+  <style>
+    :root {
+      --bg: #0c0e14;
+      --surface: #141824;
+      --surface2: #1a1f2e;
+      --border: #2a3144;
+      --text: #eef1f7;
+      --muted: #8b95a8;
+      --accent: #ff5c8a;
+      --accent-soft: rgba(255, 92, 138, 0.12);
+      --blue: #6eb6ff;
+      --green: #3dd68c;
+      --gold: #f0c14b;
+      --radius: 14px;
+      --font: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { color: var(--accent); }
+
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(12, 14, 20, 0.9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      max-width: 1100px; margin: 0 auto; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    }
+    .logo {
+      font-weight: 700; font-size: 1.15rem; color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo span { color: var(--accent); }
+    .logo-mark {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, #ff5c8a, #c084fc);
+      display: flex; align-items: center; justify-content: center; font-size: 13px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 0.88rem;
+      border: none; cursor: pointer; text-decoration: none; transition: 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff5c8a, #ff3d6e); color: #fff !important;
+      box-shadow: 0 4px 16px rgba(255, 92, 138, 0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent; color: var(--muted) !important; border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent) !important; }
+
+    .main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 64px; }
+
+    .page-head { margin-bottom: 28px; }
+    .page-head h1 {
+      font-size: clamp(1.5rem, 3vw, 1.9rem); font-weight: 800; margin-bottom: 8px;
+    }
+    .page-head p { color: var(--muted); font-size: 0.98rem; max-width: 520px; }
+    .meta-bar {
+      display: flex; flex-wrap: wrap; gap: 12px 20px; margin-top: 14px;
+      font-size: 0.85rem; color: var(--muted);
+    }
+    .meta-bar strong { color: var(--accent); font-weight: 700; }
+
+    /* Filters */
+    .filters {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+    }
+    .chip {
+      padding: 7px 14px; border-radius: 999px; font-size: 0.84rem; font-weight: 600;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); cursor: pointer; transition: 0.2s; user-select: none;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .chip.active {
+      background: var(--accent-soft); border-color: rgba(255, 92, 138, 0.45);
+      color: var(--accent);
+    }
+
+    /* Category cards */
+    .section-label {
+      font-size: 0.78rem; letter-spacing: 0.08em; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 12px; font-weight: 600;
+    }
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .cat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 12px 14px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      transition: 0.22s;
+    }
+    .cat-card:hover {
+      border-color: rgba(255, 92, 138, 0.45);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+      color: var(--text);
+    }
+    .cat-card img {
+      width: 48px; height: 48px; object-fit: contain; margin-bottom: 10px;
+      filter: drop-shadow(0 4px 8px rgba(255, 92, 138, 0.2));
+    }
+    .cat-card h3 { font-size: 0.92rem; font-weight: 650; margin-bottom: 2px; }
+    .cat-card .n { font-size: 0.76rem; color: var(--muted); }
+
+    /* Entry cards */
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .entry-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: 0.22s;
+      position: relative;
+    }
+    .entry-card:hover {
+      border-color: rgba(255, 92, 138, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+    }
+    .entry-top {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+    }
+    .entry-title { font-size: 1.05rem; font-weight: 700; line-height: 1.3; }
+    .score {
+      flex-shrink: 0;
+      min-width: 42px; height: 42px; border-radius: 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 0.9rem;
+    }
+    .score.good {
+      background: rgba(61, 214, 140, 0.1);
+      border: 1px solid rgba(61, 214, 140, 0.3);
+      color: var(--green);
+    }
+    .score.pending {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .score small { font-size: 0.58rem; font-weight: 600; }
+    .entry-meta {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .tag {
+      font-size: 0.72rem; padding: 3px 8px; border-radius: 6px;
+      background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+    }
+    .tag.cat { color: var(--accent); border-color: rgba(255,92,138,0.25); background: var(--accent-soft); }
+    .entry-desc {
+      font-size: 0.86rem; color: var(--muted); line-height: 1.55;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+      flex: 1;
+    }
+    .entry-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.75rem; color: var(--muted); padding-top: 4px;
+      border-top: 1px solid var(--border); margin-top: 2px;
+    }
+    .entry-foot a { font-weight: 600; font-size: 0.8rem; }
+
+    .empty {
+      text-align: center; padding: 48px 20px; color: var(--muted);
+      grid-column: 1 / -1;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 20px;
+      text-align: center;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .footer a { margin: 0 8px; }
+    .age {
+      display: inline-block; background: var(--accent-soft); color: var(--accent);
+      padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.72rem; margin-right: 6px;
+    }
+
+    @media (max-width: 560px) {
+      .entry-grid { grid-template-columns: 1fr; }
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="https://chengrenbaike.com/" class="logo">
+        <div class="logo-mark">📖</div>
+        成人<span>百科</span>
+      </a>
+      <div class="header-actions">
+        <a href="https://chengrenbaike.com/pinpai/" class="btn btn-ghost">词条总览</a>
+        <a href="https://chengrenbaike.com/" class="btn btn-primary">进入主站</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="page-head">
+      <h1>词条卡片</h1>
+      <p>按分类浏览已收录的品牌与平台。点击卡片可前往主站查看详情。</p>
+      <div class="meta-bar">
+        <span><strong>70+</strong> 品牌</span>
+        <span><strong>218+</strong> 作品</span>
+        <span><strong>7</strong> 分类</span>
+        <span>仅限 18+</span>
+      </div>
+    </div>
+
+    <div class="section-label">分类</div>
+    <div class="cat-grid" id="catGrid">
+      <a href="https://chengrenbaike.com/dongman/" class="cat-card" data-filter="动漫">
+        <img src="img/icon-dongman.png" alt="" width="48" height="48" />
+        <h3>成人动漫</h3>
+        <div class="n">12 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/duanju/" class="cat-card" data-filter="短剧">
+        <img src="img/icon-duanju.png" alt="" width="48" height="48" />
+        <h3>成人短剧</h3>
+        <div class="n">15 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/manhua/" class="cat-card" data-filter="漫画">
+        <img src="img/icon-manhua.png" alt="" width="48" height="48" />
+        <h3>成人漫画</h3>
+        <div class="n">6 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/xiaoshuo/" class="cat-card" data-filter="小说">
+        <img src="img/icon-xiaoshuo.png" alt="" width="48" height="48" />
+        <h3>成人小说</h3>
+        <div class="n">7 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/xiezhen/" class="cat-card" data-filter="写真">
+        <img src="img/icon-xiezhen.png" alt="" width="48" height="48" />
+        <h3>成人写真</h3>
+        <div class="n">6 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/ai/" class="cat-card" data-filter="AI">
+        <img src="img/icon-ai.png" alt="" width="48" height="48" />
+        <h3>AI 平台</h3>
+        <div class="n">12 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/wangzhan/" class="cat-card" data-filter="网站">
+        <img src="img/icon-wangzhan.png" alt="" width="48" height="48" />
+        <h3>成人网站</h3>
+        <div class="n">12 条</div>
+      </a>
+      <a href="https://chengrenbaike.com/pinpai/" class="cat-card" data-filter="all">
+        <img src="img/icon-all.png" alt="" width="48" height="48" />
+        <h3>全部词条</h3>
+        <div class="n">70+</div>
+      </a>
+    </div>
+
+    <div class="section-label">精选词条</div>
+    <div class="filters" id="filters">
+      <button type="button" class="chip active" data-cat="all">全部</button>
+      <button type="button" class="chip" data-cat="动漫">动漫</button>
+      <button type="button" class="chip" data-cat="短剧">短剧</button>
+      <button type="button" class="chip" data-cat="网站">网站</button>
+      <button type="button" class="chip" data-cat="社区">社区</button>
+      <button type="button" class="chip" data-cat="视频">视频</button>
+    </div>
+
+    <div class="entry-grid" id="entryGrid"></div>
+  </main>
+
+  <footer class="footer">
+    <span class="age">18+</span>
+    仅限成年人访问 · 请遵守所在地法律法规
+    <div style="margin-top:10px;">
+      <a href="https://chengrenbaike.com/">主站</a>
+      <a href="https://chengrenbaike.com/pinpai/">词条总览</a>
+      <a href="https://chengrenbaike.com/dongman/">动漫</a>
+      <a href="https://chengrenbaike.com/duanju/">短剧</a>
+    </div>
+    <div style="margin-top:8px;">© 2026 成人百科</div>
+  </footer>
+
+  <script>
+    const entries = [
+      {
+        name: "91黑料网",
+        score: 83, grade: "良",
+        tags: ["网站", "综合"],
+        cat: "网站",
+        type: "综合平台 · 平台型词条",
+        desc: "以热门话题、网红动态和吃瓜爆料为主题的内容聚合网站，提供资讯卡片、分类浏览与站内搜索。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "搜同社区",
+        score: 83, grade: "良",
+        tags: ["社区", "视频"],
+        cat: "社区",
+        type: "社区内容 · 平台型词条",
+        desc: "面向男同性恋题材的成人视频与社区网站，提供视频、动画、专题合集、耽美小说等栏目。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "FIKFAP",
+        score: null, grade: "待评",
+        tags: ["视频", "短视频"],
+        cat: "视频",
+        type: "视频平台 · 平台型词条",
+        desc: "面向移动端的成人短视频流媒体与创作者社区，采用竖屏信息流与滑动浏览方式。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "91动漫",
+        score: 83, grade: "良",
+        tags: ["动漫", "漫画"],
+        cat: "动漫",
+        type: "动漫 · 平台型词条",
+        desc: "面向成年华语用户的动漫与漫画内容平台，提供动画、3D 动漫、AI 漫剧、同人志等分类。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "Hentai Haven",
+        score: null, grade: "待评",
+        tags: ["动漫", "动画"],
+        cat: "动漫",
+        type: "动漫平台 · 平台型词条",
+        desc: "面向成人动漫爱好者的在线视频流媒体平台，提供日本成人动画剧集的在线播放与分类浏览。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "好色TV",
+        score: null, grade: "待评",
+        tags: ["视频", "短剧"],
+        cat: "视频",
+        type: "视频平台 · 平台型词条",
+        desc: "面向成年用户的在线视频内容平台，聚合成人视频、竖屏短剧及热点图文等内容。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "SpankBang",
+        score: null, grade: "待评",
+        tags: ["视频", "网站"],
+        cat: "视频",
+        type: "视频平台 · 平台型词条",
+        desc: "成人视频聚合 / 分享站模式，提供点播浏览、分类与标签检索，以及用户上传等内容。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      },
+      {
+        name: "91成人短剧",
+        score: null, grade: "待评",
+        tags: ["短剧", "综合"],
+        cat: "短剧",
+        type: "短剧平台 · 平台型词条",
+        desc: "综合内容平台，提供成人短剧、漫剧、真人剧、视频、漫画与小说等多种形态。",
+        date: "2026-11-16",
+        url: "https://chengrenbaike.com/"
+      }
+    ];
+
+    const grid = document.getElementById("entryGrid");
+    const filters = document.getElementById("filters");
+
+    function render(list) {
+      if (!list.length) {
+        grid.innerHTML = '<div class="empty">该分类下暂无精选卡片</div>';
+        return;
+      }
+      grid.innerHTML = list.map(e => {
+        const scoreHtml = e.score != null
+          ? `<div class="score good"><span>${e.score}</span><small>${e.grade}</small></div>`
+          : `<div class="score pending"><span>—</span><small>${e.grade}</small></div>`;
+        const tags = e.tags.map(t => `<span class="tag${t === e.cat ? ' cat' : ''}">${t}</span>`).join("");
+        return `
+          <a class="entry-card" href="${e.url}" data-cat="${e.cat}">
+            <div class="entry-top">
+              <div class="entry-title">${e.name}</div>
+              ${scoreHtml}
+            </div>
+            <div class="entry-meta">${tags}</div>
+            <p class="entry-desc">${e.desc}</p>
+            <div class="entry-foot">
+              <span>${e.type}</span>
+              <span>${e.date}</span>
+            </div>
+          </a>`;
+      }).join("");
+    }
+
+    filters.addEventListener("click", (ev) => {
+      const btn = ev.target.closest(".chip");
+      if (!btn) return;
+      filters.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      const cat = btn.dataset.cat;
+      const list = cat === "all" ? entries : entries.filter(e => e.cat === cat || e.tags.includes(cat));
+      render(list);
+    });
+
+    render(entries);
+  </script>
+</body>
+</html>
